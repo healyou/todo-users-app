@@ -6,21 +6,33 @@ services:
     image: postgres:14.1-alpine3.15
     container_name: postgres-db
     restart: always
-    user: postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=users
     ports:
       - 5432:5432
+    volumes:
+      - ./db/postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  liquibase:
+    image: liquibase/liquibase:4.6.2
+    container_name: liquibase
+    command: --defaultsFile=/liquibase/changelog/liquibase.docker.properties --contexts="dev" update
+    volumes:
+      - ./db/liquibase:/liquibase/changelog
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+
   pgadmin:
     image: dpage/pgadmin4:6.2
+    container_name: pgadmin
     restart: always
     environment:
       - PGADMIN_DEFAULT_EMAIL=postgres@pgadmin.org
@@ -28,6 +40,8 @@ services:
       - PGADMIN_LISTEN_PORT=80
     ports:
       - 8080:80
+    volumes:
+      - ./db/pgadmin-data:/var/lib/pgadmin
     depends_on:
       postgres-db:
         condition: service_healthy

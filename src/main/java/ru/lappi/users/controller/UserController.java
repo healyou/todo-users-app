@@ -1,11 +1,14 @@
 package ru.lappi.users.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.concurrent.atomic.AtomicLong;
+import ru.lappi.users.service.UserServiceImpl;
 
 /**
  * @author Nikita Gorodilov
@@ -14,16 +17,31 @@ import java.util.concurrent.atomic.AtomicLong;
 @RequestMapping(value = "/users")
 public class UserController {
 
-    private static final String template = "Hello, %s!";
-    private final AtomicLong counter = new AtomicLong();
+    @Autowired
+    UserServiceImpl userService;
 
-    @GetMapping("/greeting")
-    public String greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
-        return "Hello " + counter.incrementAndGet() + " " + String.format(template, name);
+    @PostMapping(value = "register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Boolean> register(@RequestParam(value = "username") String username,
+                                            @RequestParam(value = "password") String password
+    ) {
+        try {
+            userService.register(username, password);
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @GetMapping("/hello")
-    public String sayHello(@RequestParam(value = "myName", defaultValue = "World") String name) {
-        return String.format("Hello %s!", name);
+    @PostMapping(value = "login", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Boolean> login(@RequestParam(value = "username") String username,
+                                         @RequestParam(value = "password_hash") String passwordHash
+    ) {
+        try {
+            boolean login = userService.login(username, passwordHash);
+            return new ResponseEntity<>(login, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+        }
+
     }
 }

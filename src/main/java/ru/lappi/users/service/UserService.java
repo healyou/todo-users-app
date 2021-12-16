@@ -7,5 +7,5 @@ public interface UserService {
 
     void register(String username, String password);
 
-    boolean login(String username, String passwordHash);
+    boolean login(String username, String password);
 }

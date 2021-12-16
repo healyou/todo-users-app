@@ -1,6 +1,9 @@
 package ru.lappi.users.entity;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * @author Nikita Gorodilov
@@ -9,7 +12,8 @@ import javax.persistence.*;
 @Table(name = "Users")
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_id_generator")
+    @SequenceGenerator(name = "users_id_generator", sequenceName = "users_id_seq", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -19,8 +23,9 @@ public class User {
     @Column(name = "password_hash", length = 50, nullable = false)
     private String passwordHash;
 
-    @Column(name = "create_date")
-    private String createDate;
+    @Column(name = "create_date", nullable = false, columnDefinition = "TIMESTAMP default NOW()")
+    @CreationTimestamp
+    private Date createDate;
 
     public Long getId() {
         return id;
@@ -46,11 +51,11 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
-    public String getCreateDate() {
+    public Date getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(String createDate) {
+    public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
 }

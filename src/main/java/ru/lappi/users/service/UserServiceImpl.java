@@ -5,13 +5,17 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.lappi.users.entity.User;
 import ru.lappi.users.repository.UserRepository;
+
+import java.util.Optional;
 
 /**
  * @author Nikita Gorodilov
  */
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -25,20 +29,25 @@ public class UserServiceImpl implements UserService {
         user.setUsername(username);
         user.setPasswordHash(bCryptPasswordEncoder.encode(password));
 
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
     }
 
     @Override
-    public boolean login(String username, String passwordHash) {
+    @Transactional(readOnly = true)
+    public boolean login(String username, String password) {
         ExampleMatcher userMatcher = ExampleMatcher.matching()
-                .withMatcher("username", ExampleMatcher.GenericPropertyMatchers.ignoreCase())
-                .withMatcher("password_hash", ExampleMatcher.GenericPropertyMatchers.exact());
+                .withMatcher("username", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
 
-        User user = new User();
-        user.setUsername(username);
-        user.setPasswordHash(passwordHash);
+        User findUser = new User();
+        findUser.setUsername(username);
+        Example<User> example = Example.of(findUser, userMatcher);
 
-        Example<User> example = Example.of(user, userMatcher);
-        return userRepository.exists(example);
+        Optional<User> user = userRepository.findOne(example);
+        if (user.isPresent()) {
+            String encodedPsw = user.get().getPasswordHash();
+            return bCryptPasswordEncoder.matches(password, encodedPsw);
+        } else {
+            return false;
+        }
     }
 }

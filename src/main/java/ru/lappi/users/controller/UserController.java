@@ -20,7 +20,7 @@ public class UserController {
     @Autowired
     UserServiceImpl userService;
 
-    @PostMapping(value = "register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Boolean> register(@RequestParam(value = "username") String username,
                                             @RequestParam(value = "password") String password
     ) {
@@ -32,16 +32,19 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "login", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Boolean> login(@RequestParam(value = "username") String username,
-                                         @RequestParam(value = "password_hash") String passwordHash
+                                         @RequestParam(value = "password") String password
     ) {
         try {
-            boolean login = userService.login(username, passwordHash);
-            return new ResponseEntity<>(login, HttpStatus.OK);
+            boolean login = userService.login(username, password);
+            if (login) {
+                return new ResponseEntity<>(true, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+            }
         } catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
         }
-
     }
 }

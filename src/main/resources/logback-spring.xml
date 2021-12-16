@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <!--
+    Параметры логирования указны в application.yml
+    LOG_PATH in spring -> -Dlogging.path=path_example
+    LOG_FILE in spring -> -Dlogging.file=filename_example
+    LOG_FILE_MAX_SIZE in spring -> -Dlogging.file.max-size
+    -->
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <root>
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>

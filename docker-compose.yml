@@ -53,6 +53,8 @@ services:
       - 8082:8082
     environment:
       - spring.profiles.active=docker
+    volumes:
+      - ./log:/var/log/users-service
     healthcheck:
       test: "curl --fail --silent localhost:8082/actuator/health | grep UP || exit 1"
       interval: 10s

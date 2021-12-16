@@ -12,3 +12,15 @@ server:
   servlet:
     context-path: /users-api
   port: 8082
+
+logging:
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+  level:
+    root: info
+    ru:
+      lappi:
+        users: debug
+  file:
+    name: "${user.dir}/log/users-service.log"

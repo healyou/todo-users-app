@@ -1,3 +1,7 @@
 spring:
   datasource:
     url: jdbc:postgresql://postgres-db:5432/users
+
+logging:
+  file:
+    name: "/var/log/users-service/users-service.log"

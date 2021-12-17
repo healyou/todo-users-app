@@ -9,6 +9,7 @@ import ru.lappi.users.entity.User;
 import ru.lappi.users.repository.UserRepository;
 import ru.lappi.users.service.UserServiceImpl;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,15 +26,14 @@ public class UserServiceTests extends AbstractTest {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    private final static String USERNAME = "test";
-    private final static String PASSWORD = "test";
+    private final static String USERNAME = UUID.randomUUID().toString();
+    private final static String PASSWORD = UUID.randomUUID().toString();
 
     @BeforeEach
     void init() {
         User user = new User();
         user.setUsername(USERNAME);
         user.setPasswordHash(bCryptPasswordEncoder.encode(PASSWORD));
-        userRepository.save(user);
         userRepository.save(user);
     }
 
@@ -63,5 +63,18 @@ public class UserServiceTests extends AbstractTest {
     void testLoginWrongLogin() {
         Boolean login = assertDoesNotThrow(() -> userService.login(UUID.randomUUID().toString(), PASSWORD));
         assertEquals(false, login);
+    }
+
+    @Test
+    void testGetUserIdBySuccessful() {
+        Optional<Long> login = assertDoesNotThrow(() -> userService.getUserId(USERNAME));
+        assertTrue(login.isPresent());
+        assertNotNull(login.get());
+    }
+
+    @Test
+    void testGetUserIdByNotFound() {
+        Optional<Long> login = assertDoesNotThrow(() -> userService.getUserId(UUID.randomUUID().toString()));
+        assertFalse(login.isPresent());
     }
 }

@@ -1,12 +1,11 @@
 package ru.lappi.users.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.lappi.users.entity.User;
+import ru.lappi.users.entity.projection.ObjectId;
 import ru.lappi.users.repository.UserRepository;
 
 import java.util.Optional;
@@ -35,19 +34,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public boolean login(String username, String password) {
-        ExampleMatcher userMatcher = ExampleMatcher.matching()
-                .withMatcher("username", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
-
-        User findUser = new User();
-        findUser.setUsername(username);
-        Example<User> example = Example.of(findUser, userMatcher);
-
-        Optional<User> user = userRepository.findOne(example);
+        Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
             String encodedPsw = user.get().getPasswordHash();
             return bCryptPasswordEncoder.matches(password, encodedPsw);
         } else {
             return false;
         }
+    }
+
+    @Override
+    public Optional<Long> getUserId(String username) {
+        Optional<ObjectId> objectId = userRepository.findUserIdByUsername(username);
+        return objectId.map(ObjectId::getId).or(Optional::empty);
     }
 }

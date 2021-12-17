@@ -14,6 +14,8 @@ import ru.lappi.users.repository.UserRepository;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,8 +36,8 @@ public class UserControllerTest extends AbstractTest {
     @Autowired
     UserController controller;
 
-    private final static String USERNAME = "test";
-    private final static String PASSWORD = "test";
+    private final static String USERNAME = UUID.randomUUID().toString();
+    private final static String PASSWORD = UUID.randomUUID().toString();
 
     @BeforeEach
     void init() {
@@ -103,5 +105,30 @@ public class UserControllerTest extends AbstractTest {
         )
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().string(containsString("false")));
+    }
+
+    @Test
+    void testGetUserIdSuccessful() throws Exception {
+        String result = mockMvc.perform(
+                post(USER_CONTROLLER_URL + "/getUserId")
+                        .param("username", USERNAME)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+        )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn().getResponse().getContentAsString();
+        assertNotNull(result);
+        assertDoesNotThrow(() -> Long.valueOf(result));
+    }
+
+    @Test
+    void testGetUserIdUserNotFound() throws Exception {
+        mockMvc.perform(
+                post(USER_CONTROLLER_URL + "/getUserId")
+                        .param("username", UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+        )
+                .andExpect(status().is4xxClientError());
     }
 }

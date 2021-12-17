@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.lappi.users.service.UserServiceImpl;
 
+import java.util.Optional;
+
 /**
  * @author Nikita Gorodilov
  */
@@ -45,6 +47,16 @@ public class UserController {
             }
         } catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping(value = "/getUserId", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public ResponseEntity<Long> getUserId(@RequestParam(value = "username") String username) {
+        try {
+            Optional<Long> userId = userService.getUserId(username);
+            return ResponseEntity.of(userId);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 }

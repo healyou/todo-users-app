@@ -8,6 +8,7 @@ spring:
   jpa:
     database: POSTGRESQL
     show-sql: true
+    format_sql: true
 server:
   servlet:
     context-path: /users-api
@@ -22,5 +23,10 @@ logging:
     ru:
       lappi:
         users: debug
+    org:
+      hibernate:
+        SQL: DEBUG
+#        jdbc: TRACE
+#        type: debug
   file:
     name: "${user.dir}/log/users-service.log"

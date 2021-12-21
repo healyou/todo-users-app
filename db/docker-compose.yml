@@ -23,11 +23,9 @@ services:
       retries: 5
 
   liquibase:
-    image: liquibase/liquibase:4.6.2
+    image: auth-app-liquibase:latest
     container_name: liquibase
     command: --defaultsFile=/liquibase/changelog/liquibase.docker.properties --contexts="dev" update
-    volumes:
-      - ./liquibase:/liquibase/changelog
     depends_on:
       postgres-db:
         condition: service_healthy

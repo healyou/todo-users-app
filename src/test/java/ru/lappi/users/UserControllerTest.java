@@ -10,12 +10,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.lappi.users.controller.UserController;
 import ru.lappi.users.entity.User;
 import ru.lappi.users.repository.UserRepository;
+import ru.lappi.users.service.TestObjectsCreator;
 
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,16 +35,15 @@ public class UserControllerTest extends AbstractTest {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
     UserController controller;
+    @Autowired
+    private TestObjectsCreator testObjectsCreator;
 
     private final static String USERNAME = UUID.randomUUID().toString();
     private final static String PASSWORD = UUID.randomUUID().toString();
 
     @BeforeEach
     void init() {
-        User user = new User();
-        user.setUsername(USERNAME);
-        user.setPasswordHash(bCryptPasswordEncoder.encode(PASSWORD));
-        userRepository.save(user);
+        testObjectsCreator.createRandomUserWithRoles(USERNAME, PASSWORD);
     }
 
     @Test
@@ -125,6 +124,37 @@ public class UserControllerTest extends AbstractTest {
     void testGetUserIdUserNotFound() throws Exception {
         mockMvc.perform(
                 post(USER_CONTROLLER_URL + "/getUserId")
+                        .param("username", UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+        )
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void testGetUserDataSuccessful() throws Exception {
+        String result = mockMvc.perform(
+                post(USER_CONTROLLER_URL + "/getUserData")
+                        .param("username", USERNAME)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+        )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn().getResponse().getContentAsString();
+        assertNotNull(result);
+        assertTrue(result.contains("userId"));
+        assertTrue(result.contains("privilegeCodes"));
+
+        User user = userRepository.findByUsername(USERNAME)
+                .orElseThrow(RuntimeException::new);
+        assertTrue(user.getAllPrivilegeCodes().size() > 0);
+        user.getAllPrivilegeCodes().forEach(it -> assertTrue(result.contains(it)));
+    }
+
+    @Test
+    void testGetUserDataNotFound() throws Exception {
+        mockMvc.perform(
+                post(USER_CONTROLLER_URL + "/getUserData")
                         .param("username", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                         .accept(MediaType.APPLICATION_JSON_VALUE)

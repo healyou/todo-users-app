@@ -21,7 +21,11 @@ services:
       retries: 5
 
   lliquibase:
-    image: auth-app-liquibase:latest
+    image: users-app-liquibase:latest
+    build:
+      context: ./db/liquibase
+      dockerfile: Dockerfile
+    pull_policy: build
     container_name: liquibase
     command: --defaultsFile=/liquibase/changelog/liquibase.docker.properties --contexts="dev" update
     depends_on:
@@ -46,6 +50,10 @@ services:
 
   users-app:
     image: users-app:v1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    pull_policy: build
     container_name: users-app
     ports:
       - 8082:8082

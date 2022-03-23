@@ -13,4 +13,29 @@
         <comment>Создание таблицы пользователей</comment>
         <sqlFile dbms="postgresql" relativeToChangelogFile="true" path="sql/create_users_table.sql"/>
     </changeSet>
+
+    <changeSet id="1_0_0_create_roles_table" author="nikita.gorodilov">
+        <comment>Создание таблицы ролей</comment>
+        <sqlFile dbms="postgresql" relativeToChangelogFile="true" path="sql/create_roles_table.sql"/>
+    </changeSet>
+
+    <changeSet id="1_0_0_create_privileges_table" author="nikita.gorodilov">
+        <comment>Создание таблицы привилегий</comment>
+        <sqlFile dbms="postgresql" relativeToChangelogFile="true" path="sql/create_privileges_table.sql"/>
+    </changeSet>
+
+    <changeSet id="1_0_0_create_role_privileges_table" author="nikita.gorodilov">
+        <comment>Создание таблицы привилегии ролей</comment>
+        <sqlFile dbms="postgresql" relativeToChangelogFile="true" path="sql/create_role_privileges_table.sql"/>
+    </changeSet>
+
+    <changeSet id="1_0_0_create_user_roles_table" author="nikita.gorodilov">
+        <comment>Создание таблицы роли пользователя</comment>
+        <sqlFile dbms="postgresql" relativeToChangelogFile="true" path="sql/create_user_roles_table.sql"/>
+    </changeSet>
+
+    <changeSet id="1_0_0_create_user_privileges_table" author="nikita.gorodilov">
+        <comment>Создание таблицы привилегии пользователя</comment>
+        <sqlFile dbms="postgresql" relativeToChangelogFile="true" path="sql/create_user_privileges_table.sql"/>
+    </changeSet>
 </databaseChangeLog>

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.lappi.users.controller.data.UserData;
 import ru.lappi.users.service.UserServiceImpl;
 
 import java.util.Optional;
@@ -55,6 +56,17 @@ public class UserController {
         try {
             Optional<Long> userId = userService.getUserId(username);
             return ResponseEntity.of(userId);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping(value = "/getUserData", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public ResponseEntity<UserData> getUserData(@RequestParam(value = "username") String username) {
+        try {
+            Optional<UserData> userData = userService.getUserByUsername(username)
+                    .map(UserData::new);
+            return ResponseEntity.of(userData);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }

@@ -1,0 +1,6 @@
+CREATE TABLE roles (
+	id serial PRIMARY KEY,
+	code VARCHAR (50) UNIQUE NOT NULL,
+	description VARCHAR (200) NOT NULL,
+	create_date TIMESTAMP NOT NULL DEFAULT NOW()
+);

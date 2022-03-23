@@ -1,1 +1,1 @@
-docker build -t auth-app-liquibase .
+docker build -t users-app-liquibase .

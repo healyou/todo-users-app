@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <preConditions>
+        <dbms type="postgresql"/>
+    </preConditions>
+
+    <changeSet id="1_0_1_create_privileges" author="nikita.gorodilov">
+        <comment>Создание записей привилегий</comment>
+        <sqlFile dbms="postgresql" relativeToChangelogFile="true" path="sql/create_privileges.sql"/>
+    </changeSet>
+
+    <changeSet id="1_0_1_create_roles" author="nikita.gorodilov">
+        <comment>Создание записей ролей</comment>
+        <sqlFile dbms="postgresql" relativeToChangelogFile="true" path="sql/create_roles.sql"/>
+    </changeSet>
+
+    <changeSet id="1_0_1_create_users_with_his_roles" author="nikita.gorodilov">
+        <comment>Создание записей пользователей с их ролями</comment>
+        <sqlFile dbms="postgresql" relativeToChangelogFile="true" path="sql/create_users.sql"/>
+    </changeSet>
+</databaseChangeLog>

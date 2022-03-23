@@ -3,7 +3,11 @@ package ru.lappi.users.entity;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Nikita Gorodilov
@@ -26,6 +30,38 @@ public class User {
     @Column(name = "create_date", nullable = false, columnDefinition = "TIMESTAMP default NOW()")
     @CreationTimestamp
     private Date createDate;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> roles = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_privileges",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "privilege_id")
+    )
+    private List<Privilege> privileges = new ArrayList<>();
+
+    @Transient
+    public Set<String> getAllPrivilegeCodes() {
+        /* Привилегии в ролях */
+        List<Privilege> rolePrivileges = getRoles().stream()
+                .map(Role::getPrivileges)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+        /* Отдельные привилегии пользователя без привязки к ролям */
+        rolePrivileges.addAll(getPrivileges());
+
+        /* Берём только уникальные значения */
+        return rolePrivileges.stream()
+                .map(Privilege::getCode)
+                .collect(Collectors.toSet());
+    }
 
     public Long getId() {
         return id;
@@ -57,5 +93,21 @@ public class User {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+    public List<Privilege> getPrivileges() {
+        return privileges;
+    }
+
+    public void setPrivileges(List<Privilege> privileges) {
+        this.privileges = privileges;
     }
 }

@@ -1,5 +1,7 @@
 package ru.lappi.users.service;
 
+import ru.lappi.users.entity.User;
+
 import java.util.Optional;
 
 /**
@@ -12,4 +14,6 @@ public interface UserService {
     boolean login(String username, String password);
 
     Optional<Long> getUserId(String username);
+
+    Optional<User> getUserByUsername(String username);
 }

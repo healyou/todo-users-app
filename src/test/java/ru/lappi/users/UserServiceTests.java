@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import ru.lappi.users.entity.User;
+import ru.lappi.users.repository.RoleRepository;
 import ru.lappi.users.repository.UserRepository;
+import ru.lappi.users.service.TestObjectsCreator;
 import ru.lappi.users.service.UserServiceImpl;
 
 import java.util.Optional;
@@ -25,21 +27,31 @@ public class UserServiceTests extends AbstractTest {
     private UserRepository userRepository;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private TestObjectsCreator testObjectsCreator;
 
     private final static String USERNAME = UUID.randomUUID().toString();
     private final static String PASSWORD = UUID.randomUUID().toString();
 
     @BeforeEach
     void init() {
-        User user = new User();
-        user.setUsername(USERNAME);
-        user.setPasswordHash(bCryptPasswordEncoder.encode(PASSWORD));
-        userRepository.save(user);
+        testObjectsCreator.createRandomUserWithRoles(USERNAME, PASSWORD);
     }
 
     @Test
     void testRegisterSuccessful() {
         assertDoesNotThrow(() -> userService.register(UUID.randomUUID().toString(), PASSWORD));
+    }
+
+    @Test
+    void testRegisterAddDefaultRole() {
+        String username = UUID.randomUUID().toString();
+        userService.register(username, PASSWORD);
+        User user = userRepository.findByUsername(username).orElseThrow(RuntimeException::new);
+        boolean hasDefaultRole = user.getRoles().stream()
+                .filter(it -> it.getCode().equals(RoleRepository.ROLE_USER_CODE))
+                .count() == 1;
+        assertTrue(hasDefaultRole);
     }
 
     @Test

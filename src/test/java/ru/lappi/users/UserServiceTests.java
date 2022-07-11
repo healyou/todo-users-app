@@ -89,4 +89,21 @@ public class UserServiceTests extends AbstractTest {
         Optional<Long> login = assertDoesNotThrow(() -> userService.getUserId(UUID.randomUUID().toString()));
         assertFalse(login.isPresent());
     }
+
+    @Test
+    void testGetUserByIdSuccessful() {
+        Optional<Long> userId = userService.getUserId(USERNAME);
+        assertTrue(userId.isPresent());
+        Long id = userId.get();
+        assertNotNull(id);
+
+        Optional<User> user = assertDoesNotThrow(() -> userService.getUserById(id));
+        assertTrue(user.isPresent());
+    }
+
+    @Test
+    void testGetUserByIdNotFound() {
+        Optional<User> user = assertDoesNotThrow(() -> userService.getUserById(-1L));
+        assertFalse(user.isPresent());
+    }
 }

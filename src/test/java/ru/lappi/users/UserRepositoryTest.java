@@ -43,6 +43,23 @@ public class UserRepositoryTest extends AbstractTest {
     }
 
     @Test
+    void testFindUserByIdSuccessful() {
+        Optional<ObjectId> userId = userRepository.findUserIdByUsername(USERNAME);
+        assertTrue(userId.isPresent());
+        Long id = userId.get().getId();
+        assertNotNull(id);
+
+        Optional<User> user = assertDoesNotThrow(() -> userRepository.findById(id));
+        assertTrue(user.isPresent());
+    }
+
+    @Test
+    void testFindUserByIdNotFound() {
+        Optional<User> user = assertDoesNotThrow(() -> userRepository.findById(-1L));
+        assertFalse(user.isPresent());
+    }
+
+    @Test
     void testFindUserByUsernameNotFound() {
         Optional<User> user = assertDoesNotThrow(() -> userRepository.findByUsername(UUID.randomUUID().toString()));
         assertFalse(user.isPresent());

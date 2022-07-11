@@ -9,9 +9,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.lappi.users.controller.UserController;
 import ru.lappi.users.entity.User;
+import ru.lappi.users.entity.projection.ObjectId;
 import ru.lappi.users.repository.UserRepository;
 import ru.lappi.users.service.TestObjectsCreator;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
@@ -159,6 +161,42 @@ public class UserControllerTest extends AbstractTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                         .accept(MediaType.APPLICATION_JSON_VALUE)
         )
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void testGetUserDataByUserIdSuccessful() throws Exception {
+        Optional<ObjectId> userId = userRepository.findUserIdByUsername(USERNAME);
+        assertTrue(userId.isPresent());
+        Long id = userId.get().getId();
+        assertNotNull(id);
+
+        String result = mockMvc.perform(
+                        post(USER_CONTROLLER_URL + "/getUserDataByUserId")
+                                .param("user_id", id.toString())
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                                .accept(MediaType.APPLICATION_JSON_VALUE)
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn().getResponse().getContentAsString();
+        assertNotNull(result);
+        assertTrue(result.contains("userId"));
+        assertTrue(result.contains("privilegeCodes"));
+
+        User user = userRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+        assertTrue(user.getAllPrivilegeCodes().size() > 0);
+        user.getAllPrivilegeCodes().forEach(it -> assertTrue(result.contains(it)));
+    }
+
+    @Test
+    void testGetUserDataByUserIdNotFound() throws Exception {
+        mockMvc.perform(
+                        post(USER_CONTROLLER_URL + "/getUserDataByUserId")
+                                .param("user_id", Long.valueOf(-1L).toString())
+                                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                                .accept(MediaType.APPLICATION_JSON_VALUE)
+                )
                 .andExpect(status().is4xxClientError());
     }
 }

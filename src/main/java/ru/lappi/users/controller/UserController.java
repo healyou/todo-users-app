@@ -71,4 +71,15 @@ public class UserController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PostMapping(value = "/getUserDataByUserId", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public ResponseEntity<UserData> getUserData(@RequestParam(value = "user_id") Long userId) {
+        try {
+            Optional<UserData> userData = userService.getUserById(userId)
+                    .map(UserData::new);
+            return ResponseEntity.of(userData);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
 }
